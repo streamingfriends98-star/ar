@@ -1,14 +1,16 @@
-INSTANT 3D CAMERA DEMO — v4
-Upload all files to your HTTPS website, replacing previous files. index.html now opens ar.html automatically, so existing QR codes pointing at index.html or the folder also open the new experience. For a new QR, open setup.html and enter your published ar.html?v=4 URL.
+FIVE-IMAGE CAMERA CAROUSEL — separate alternative to 3D DEMO
 
-No marker needed. Browser requests rear camera access on opening; if the browser requires a user gesture or permission was denied, use Start camera after enabling permission. Loading requires internet for A-Frame 1.6.0 and QRCode.js 1.0.0. Camera access requires HTTPS and works best in Safari/Chrome outside embedded social app browsers.
+1. Upload the contents of ar-carousel to an HTTPS website folder.
+2. Open setup.html on the published website, generate the QR linking to index.html and print/download the QR using your browser.
+3. Scan the QR with a phone, open in Safari/Chrome, and allow camera access. If a tap is required, use Start camera.
+4. Swipe the image left/right, use arrows, or tap any of the five dots. Desktop keyboard arrows work when the carousel has focus.
 
-The 3D DEMO text is a SCREEN-SPACE CAMERA OVERLAY, not surface-tracked world AR. It stays centered while you move the phone. Colour and +/- size controls are available. Fullscreen button enters immersive browser fullscreen where supported. iPhone browsers may retain browser chrome; the page cannot force unsupported fullscreen or bypass permission prompts.
+Includes five original SVG demo landscape cards, not client product photos. To use YOUR five images, upload them to assets/ and change each src/title/alt in slides.js. JPG, PNG, WebP or SVG are supported. Portrait 4:5 images work well. Fit shows the complete image; Fill crops it to fill the frame.
 
-Screen size, orientation and pixel ratio are detected and layout updates automatically. The platform is detected; exact model is shown only when browser User-Agent Client Hints exposes it. iPhone Safari generally does not expose the exact iPhone model. Screen dimensions are CSS pixels, not advertised hardware resolution. Camera capture dimensions are shown separately.
+No tracking marker or AR library required. This is a screen-space image carousel over a live camera, not a surface-anchored AR carousel. Screen dimensions and orientation adapt automatically. Exact phone model is displayed only where browser Client Hints exposes it; otherwise platform/dimensions are displayed. Fullscreen works only where permitted by the browser. Camera uses cover to fill the screen; this may crop camera edges. Images remain independently fitted.
 
-The camera fills the window using cover, so edges may be cropped when camera/screen ratios differ. Text sizing adapts independently to maintain comfortable margins. No artificial camera zoom is applied.
+Main carousel has no external JavaScript dependencies. Internet needed initially to open the site and for QRCode.js on the setup page. Camera runs locally without recording or uploads; no backend or analytics. Camera denied? The five-image gallery still works against a dark background. HTTPS required for mobile camera; file:// is only suitable for inspecting the fallback gallery.
 
-No backend, analytics, camera recording or camera uploads. External library hosts receive normal requests. Old assets/marker files remain only for reference and are unused.
+Source files: index.html, carousel.css, carousel.js, slides.js, assets/slide-1.svg through slide-5.svg. QR setup: setup.html, setup.js, style.css.
 
-Checked: JavaScript syntax and responsive fit calculations. Live camera and fullscreen behaviour still require physical device testing.
+Validation: JavaScript syntax and five asset references checked. Live mobile camera, touch gestures and fullscreen have not been physically tested.
