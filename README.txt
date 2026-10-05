@@ -14,3 +14,6 @@ Main carousel has no external JavaScript dependencies. Internet needed initially
 Source files: index.html, carousel.css, carousel.js, slides.js, assets/slide-1.svg through slide-5.svg. QR setup: setup.html, setup.js, style.css.
 
 Validation: JavaScript syntax and five asset references checked. Live mobile camera, touch gestures and fullscreen have not been physically tested.
+
+BACKGROUND ANIMATION UPDATE
+Continuous aqua, violet and blue ambient lights plus 18 drifting particles, behind the image gallery. Animation cannot intercept swipes or controls. Pauses when the tab is hidden and respects the system Reduce Motion setting. Replace hosted files and refresh to load version 2.

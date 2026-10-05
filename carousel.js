@@ -19,3 +19,6 @@ window.addEventListener('resize',resize);window.visualViewport?.addEventListener
 async function camera(){if(busy||active)return;busy=true;start.hidden=true;try{if(!isSecureContext||!navigator.mediaDevices)throw Error('Use HTTPS hosting for the camera. Image browsing still works.');statusEl.textContent='Allow camera access…';stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}},audio:false});video.srcObject=stream;await video.play();active=true;statusEl.textContent='Live camera · swipe the image';}catch(e){stream?.getTracks().forEach(t=>t.stop());statusEl.textContent=e.name==='NotAllowedError'?'Camera permission needed. You can still browse all five images.':e.message;start.hidden=false;}busy=false;}
 start.onclick=camera;window.addEventListener('pagehide',()=>stream?.getTracks().forEach(t=>t.stop()));window.addEventListener('pageshow',e=>{if(e.persisted){active=false;camera();}});
 show(0);identify();camera();
+
+// Avoid animation work while the page is hidden.
+document.addEventListener('visibilitychange',()=>document.body.classList.toggle('motion-paused',document.hidden));
