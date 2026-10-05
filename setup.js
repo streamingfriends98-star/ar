@@ -1,4 +1,4 @@
 const field=document.getElementById('url'),notice=document.getElementById('notice');
-if(location.protocol==='https:')field.value=new URL('./',location.href).href;
+if(location.protocol==='https:')field.value=new URL('ar.html?v=4',location.href).href;
 document.getElementById('generate').onclick=()=>{try{const u=new URL(field.value.trim());if(u.protocol!=='https:')throw Error('Use the published HTTPS address.');if(!window.QRCode)throw Error('QR library unavailable. Connect to the internet and reload.');document.getElementById('qr').replaceChildren();new QRCode(document.getElementById('qr'),{text:u.href,width:220,height:220,correctLevel:QRCode.CorrectLevel.M});document.getElementById('destination').textContent=u.href;notice.textContent='QR ready. Test the link on your phone, then print this card.';}catch(e){notice.textContent=e.message;}};
 document.getElementById('print').onclick=()=>{if(!document.querySelector('#qr canvas')){notice.textContent='Generate a QR code before printing.';return;}window.print();};

@@ -1,54 +1,52 @@
 const statusEl=document.getElementById('status');
+const video=document.getElementById('cameraFeed');
+const startButton=document.getElementById('start');
+let scene,stream,starting=false,ready=false;
 function message(t){statusEl.textContent=t;}
-function script(src){return new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=()=>reject(new Error('Libraries could not load. Check your internet connection and reload.'));document.head.append(s);});}
-window.addEventListener('camera-error',()=>message('Camera unavailable. Allow camera permission, close other camera apps and reload in Safari/Chrome.'));
-window.addEventListener('camera-init',()=>message('Camera ready · point at the tracking marker'));
-async function start(){
- if(!window.isSecureContext || !navigator.mediaDevices){message('Camera needs HTTPS hosting (or localhost). Upload the folder to an HTTPS website first.');return;}
- try{
- await script('https://aframe.io/releases/1.6.0/aframe.min.js');
- await script('https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.7/aframe/build/aframe-ar.js');
- registerDemoText();
- const scene=document.createElement('a-scene');
- scene.setAttribute('embedded','');scene.setAttribute('vr-mode-ui','enabled: false');scene.setAttribute('renderer','antialias: true; alpha: true');
- scene.setAttribute('arjs','sourceType: webcam; debugUIEnabled: false; detectionMode: mono; patternRatio: 0.5; maxDetectionRate: 60; canvasWidth: 640; canvasHeight: 480; sourceWidth: 640; sourceHeight: 480; cameraParametersUrl: https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.7/data/data/camera_para.dat');
- scene.innerHTML=`<a-marker id="marker" type="pattern" url="assets/marker.patt?v=3" emitevents="true" smooth="false"><a-entity id="visual" scale="0.55 0.55 0.55"><a-box width="2.8" height="0.06" depth="0.48" position="0 0.03 0" material="color: #102d43; roughness: 0.65"></a-box><a-entity id="demoText" demo-text="color: #62ebd1" position="0 0.1 0" animation="property: position; to: 0 0.18 0; dir: alternate; loop: true; dur: 2000; easing: easeInOutSine"></a-entity></a-entity></a-marker><a-entity light="type: ambient; intensity: 1.5"></a-entity><a-entity light="type: directional; intensity: 2" position="1 3 2"></a-entity><a-entity camera></a-entity>`;
- document.body.append(scene);
- fitCameraToScreen(scene);
- const marker=scene.querySelector('#marker'); marker.addEventListener('markerFound',()=>message('Marker found · explore your visual'));marker.addEventListener('markerLost',()=>message('Marker lost · move back and show the full border'));
- let c=0,s=0;const colors=['#62ebd1','#e5a4ff','#ffc56f'];const scales=['0.55 0.55 0.55','0.35 0.35 0.35','0.75 0.75 0.75'];
+function script(src){return new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=()=>reject(Error('3D library could not load. Check internet and reload.'));document.head.append(s);});}
+function dimensions(){
+ const w=window.visualViewport?.width||innerWidth,h=window.visualViewport?.height||innerHeight;
+ document.documentElement.style.setProperty('--view-height',h+'px');
+ document.getElementById('dimensions').textContent=Math.round(w)+' × '+Math.round(h)+' CSS px · '+devicePixelRatio+'× pixel ratio';
+ if(scene && scene.camera){scene.camera.aspect=w/h;scene.camera.updateProjectionMatrix();scene.renderer?.setSize(w,h,false);fitText();}
+}
+let sizeFactor=1;
+function fitText(){if(!scene?.camera)return;const aspect=scene.camera.aspect;const horizontal=2*3*Math.tan(AFRAME.THREE.MathUtils.degToRad(45/2))*aspect;const scale=Math.min(.8,horizontal*.76/3)*sizeFactor;scene.querySelector('#visual')?.setAttribute('scale',`${scale} ${scale} ${scale}`);}
+async function identifyDevice(){
+ let platform=navigator.userAgentData?.platform||(/iPhone/.test(navigator.userAgent)?'iPhone':/iPad/.test(navigator.userAgent)?'iPad':/Android/.test(navigator.userAgent)?'Android':'Browser device');
+ let model='Exact model not exposed';
+ try{const info=await navigator.userAgentData?.getHighEntropyValues(['model']);if(info?.model)model=info.model;}catch(e){}
+ document.getElementById('device').textContent=platform+' · '+model;dimensions();
+}
+async function buildScene(){
+ await script('https://aframe.io/releases/1.6.0/aframe.min.js');registerDemoText();
+ scene=document.createElement('a-scene');scene.setAttribute('embedded','');scene.setAttribute('vr-mode-ui','enabled: false');scene.setAttribute('device-orientation-permission-ui','enabled: false');scene.setAttribute('renderer','alpha: true; antialias: true');
+ scene.innerHTML=`<a-entity id="visual" position="0 -0.32 -3"><a-box width="2.8" height="0.06" depth="0.48" position="0 0.03 0" color="#102d43"></a-box><a-entity id="demoText" demo-text="color: #62ebd1" position="0 0.1 0" rotation="0 -12 0" animation="property: position; to: 0 0.2 0; dir: alternate; loop: true; dur: 2000; easing: easeInOutSine"></a-entity></a-entity><a-entity light="type: ambient; intensity: 1.5"></a-entity><a-entity light="type: directional; intensity: 2" position="1 3 2"></a-entity><a-entity camera="fov: 45; near: 0.01; far: 100" look-controls="enabled: false" wasd-controls="enabled: false" position="0 0 0"></a-entity>`;
+ document.getElementById('stage').append(scene);scene.addEventListener('loaded',()=>{dimensions();});
+ let c=0;const colors=['#62ebd1','#e5a4ff','#ffc56f'];
  document.getElementById('color').onclick=()=>scene.querySelector('#demoText').setAttribute('demo-text','color',colors[++c%3]);
- document.getElementById('size').onclick=()=>scene.querySelector('#visual').setAttribute('scale',scales[++s%3]);
- message('Starting camera… allow access when prompted.');
- }catch(e){message(e.message);}
+ document.getElementById('smaller').onclick=()=>{sizeFactor=Math.max(.4,sizeFactor-.15);fitText();};
+ document.getElementById('larger').onclick=()=>{sizeFactor=Math.min(1.3,sizeFactor+.15);fitText();};
 }
-// Fit the entire camera frame instead of cropping a landscape feed to portrait.
-// Apply identical bounds to the video and WebGL canvas to preserve alignment.
-function fitCameraToScreen(scene){
- let previousSize='';
- function fit(){
-  const video=document.getElementById('arjs-video');
-  const canvas=scene.canvas;
-  if(video && canvas && video.videoWidth && video.videoHeight){
-   const viewportWidth=document.documentElement.clientWidth;
-   const viewportHeight=window.innerHeight;
-   const ratio=Math.min(viewportWidth/video.videoWidth,viewportHeight/video.videoHeight);
-   const width=Math.round(video.videoWidth*ratio),height=Math.round(video.videoHeight*ratio);
-   const left=Math.round((viewportWidth-width)/2),top=Math.round((viewportHeight-height)/2);
-   for(const element of [video,canvas]){
-    const rules={position:'fixed',width:width+'px',height:height+'px',left:left+'px',top:top+'px',margin:'0px',transform:'none','max-width':'none','max-height':'none'};
-    for(const [property,value] of Object.entries(rules)){
-     if(element.style.getPropertyValue(property)!==value || element.style.getPropertyPriority(property)!=='important')element.style.setProperty(property,value,'important');
-    }
-   }
-   const size=width+'x'+height;
-   if(previousSize!==size && scene.renderer){scene.renderer.setSize(width,height,false);previousSize=size;}
-  }
-  setTimeout(fit,250);
- }
- setTimeout(fit,250);
+const scenePromise=buildScene().catch(e=>{message(e.message);throw e;});scenePromise.catch(()=>{});
+async function startCamera(){
+ if(starting||ready)return;starting=true;startButton.hidden=true;
+ if(!isSecureContext||!navigator.mediaDevices){message('Camera requires an HTTPS website.');startButton.hidden=false;starting=false;return;}
+ try{
+ message('Allow camera access to start…');
+ stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}},audio:false});
+ video.srcObject=stream;await video.play();await scenePromise;ready=true;
+ message('Live preview · no marker needed');document.getElementById('hint').hidden=true;
+ const settings=stream.getVideoTracks()[0].getSettings();document.getElementById('cameraDetails').textContent='Camera '+(settings.width||video.videoWidth)+' × '+(settings.height||video.videoHeight);
+ dimensions();
+ }catch(e){stream?.getTracks().forEach(t=>t.stop());message(e.name==='NotAllowedError'?'Camera access needed. Allow it in browser settings, then tap Start.':e.message||'Camera unavailable. Try Safari or Chrome.');startButton.hidden=false;}
+ starting=false;
 }
-// Built-in vector letter outlines: no font/model download is needed.
+startButton.onclick=startCamera;
+document.getElementById('fullscreen').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else if(document.documentElement.requestFullscreen)await document.documentElement.requestFullscreen();else message('Full-window preview active. This browser controls its address bar.');}catch(e){message('Fullscreen unavailable; full-window preview remains active.');}};
+window.addEventListener('resize',dimensions);window.visualViewport?.addEventListener('resize',dimensions);window.addEventListener('orientationchange',()=>setTimeout(dimensions,200));
+window.addEventListener('pagehide',()=>stream?.getTracks().forEach(t=>t.stop()));
+identifyDevice();startCamera();
 function registerDemoText(){
  AFRAME.registerComponent('demo-text',{
   schema:{color:{default:'#62ebd1'}},
@@ -68,4 +66,3 @@ function registerDemoText(){
   remove(){const g=this.el.getObject3D('mesh');if(g)g.traverse(o=>{if(o.geometry)o.geometry.dispose();});if(this.material)this.material.dispose();this.el.removeObject3D('mesh');}
  });
 }
-start();
