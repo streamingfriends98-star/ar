@@ -34,3 +34,6 @@ https://ar-js-org.github.io/AR.js-Docs/marker-based/
 https://github.com/AR-js-org/AR.js
 https://aframe.io/
 https://github.com/davidshimjs/qrcodejs
+
+MOBILE FRAMING UPDATE (v2)
+Camera uses full-frame fit (letterboxing may appear) instead of filling and cropping a portrait screen. Camera video and 3D canvas share identical bounds. Default model size is 55% of the original. Size options are 55%, 35%, 75%. Replace ALL existing hosted files and reload the page. Physical phone testing remains required.
