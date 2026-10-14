@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#120d09">
+<title>Food Special Offers</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="page" id="page">
+  <video id="camera" autoplay playsinline muted></video>
+  <div class="camera-tint"></div>
+  <canvas id="fx-canvas" aria-hidden="true"></canvas>
+  <div id="scan-beam" aria-hidden="true"></div>
+  <div class="topbar"><span id="camera-status">CONNECTING CAMERA</span></div>
+  <header class="head">
+    
+    <h1>Food <span>Special Offers</span></h1>
+    <p class="sub">Fresh deals, served hot. Swipe, scroll or tap a dish to explore.</p>
+  </header>
+
+  <section class="stage" id="stage" role="group" aria-roledescription="carousel" aria-label="Food special offers" tabindex="0">
+    <div class="track" id="track"></div>
+  </section>
+
+  <footer class="controls">
+    <button class="arrow" id="prev" aria-label="Previous offer">‹</button>
+    <div class="meta">
+      <div class="dots" id="dots"></div>
+      <span class="count"><b id="cur">01</b> / <span id="total">07</span></span>
+    </div>
+    <button class="arrow" id="next" aria-label="Next offer">›</button>
+  </footer>
+  <aside id="camera-message" hidden><strong>Live camera not available</strong><span id="camera-message-text">The offers remain visible. Use HTTPS and allow camera access to show the live camera view.</span><button id="retry-camera">Retry camera</button></aside>
+  <button id="switch-camera" class="switch-camera" hidden>Switch camera</button>
+<script src="app.js"></script>
+</body>
+</html>

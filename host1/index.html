@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#120d09">
+<title>Food Special Offers</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="page" id="page">
+  <header class="head">
+    <p class="eyebrow">TODAY'S SPECIALS</p>
+    <h1>Food <span>Special Offers</span></h1>
+    <p class="sub">Fresh deals, served hot. Swipe, scroll or tap a dish to explore.</p>
+  </header>
+
+  <section class="stage" id="stage" role="group" aria-roledescription="carousel" aria-label="Food special offers" tabindex="0">
+    <div class="track" id="track"></div>
+  </section>
+
+  <footer class="controls">
+    <button class="arrow" id="prev" aria-label="Previous offer">‹</button>
+    <div class="meta">
+      <div class="dots" id="dots"></div>
+      <span class="count"><b id="cur">01</b> / <span id="total">07</span></span>
+    </div>
+    <button class="arrow" id="next" aria-label="Next offer">›</button>
+  </footer>
+</main>
+<script src="app.js"></script>
+</body>
+</html>
